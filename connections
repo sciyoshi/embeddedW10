@@ -1,0 +1,37 @@
+PWM
+	LCD_CONT
+		active high, no filtering
+		RP21
+	LCD_BKLIGHT
+		open collector
+		RP20
+
+LCD
+	Data
+		Split RC9..6, RB11..8
+	E
+		RB5
+	RW
+		RB6
+	RS
+		RB7
+
+Analog
+	Audio
+		AINR -- AN8
+		AINL -- AN12
+	Capacitive touch sensors
+		AN9,10,11
+	16-length real sliding DFT on samples
+
+
+Rotary Switch
+	RA0,1,2
+	input on current pin with weak pull-up
+	ground 2 near pins and test on interrupt
+
+Audio Interface
+	I2C
+		SDA -- RP2
+		SCL -- RP3
+	Int
