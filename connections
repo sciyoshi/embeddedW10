@@ -8,21 +8,13 @@ PWM
 
 LCD
 	Data
-		Split RC9..6, RB11..8
+		RE0-7
 	E
-		RB5
+		RG8
 	RW
-		RB6
+		RG7
 	RS
-		RB7
-
-Analog
-	Audio
-		AINR -- AN8
-		AINL -- AN12
-	Capacitive touch sensors
-		AN9,10,11
-	16-length real sliding DFT on samples
+		RG6
 
 
 Rotary Switch
@@ -32,6 +24,10 @@ Rotary Switch
 
 Audio Interface
 	I2C
-		SDA -- RP2
-		SCL -- RP3
+		SDA		RD9	(SDA1)
+		SCL		RD10	(SCL1)
 	Int
+				RD0	(INT0)
+	PWM output
+		PWM_SIG1	RD8	(IC1)
+		PWM_SIG2	RD11	(IC4)
