@@ -1,10 +1,11 @@
 PWM
 	LCD_CONT
 		active high, no filtering
-		RP21
+		RD3	(OC4)
+
 	LCD_BKLIGHT
 		open collector
-		RP20
+		RD2	(OC3)
 
 LCD
 	Data
@@ -16,9 +17,14 @@ LCD
 	RS
 		RG6
 
+Capactive sensing
+	RB2	(AN2)
+	RB3	(AN3)
+	RB4	(AN4)
+	RB5	(AN5)
 
 Rotary Switch
-	RA0,1,2
+	RD4,5,6
 	input on current pin with weak pull-up
 	ground 2 near pins and test on interrupt
 
@@ -28,6 +34,6 @@ Audio Interface
 		SCL		RD10	(SCL1)
 	Int
 				RD0	(INT0)
-	PWM output
+	PWM output (uC input)
 		PWM_SIG1	RD8	(IC1)
 		PWM_SIG2	RD11	(IC4)
