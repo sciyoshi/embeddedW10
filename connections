@@ -11,11 +11,11 @@ LCD
 	Data
 		RE0-7
 	E
-		RG8
+		RD1
 	RW
-		RG7
+		RC14
 	RS
-		RG6
+		RC13
 
 Capactive sensing
 	RB2	(AN2)
@@ -34,6 +34,8 @@ Audio Interface
 		SCL		RD10	(SCL1)
 	Int
 				RD0	(INT0)
-	PWM output (uC input)
+	IC_RST	
+				RB15
+	PWM output (uC input capture)
 		PWM_SIG1	RD8	(IC1)
 		PWM_SIG2	RD11	(IC4)
