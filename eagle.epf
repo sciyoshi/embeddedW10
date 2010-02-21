@@ -310,21 +310,22 @@ UsedLibrary="/home/ben/eagle-5.7.0/lbr/xilinx-xc18v.lbr"
 UsedLibrary="/home/ben/eagle-5.7.0/lbr/xilinx-xcv.lbr"
 UsedLibrary="/home/ben/eagle-5.7.0/lbr/zetex.lbr"
 UsedLibrary="/home/ben/eagle-5.7.0/lbr/zilog.lbr"
+UsedLibrary="lib/bnahill.lbr"
 UsedLibrary="/home/ben/git/eagle/lib/bnahill.lbr"
 
 [Win_1]
 Type="Control Panel"
 Loc="0 30 932 571"
-State=2
+State=0
 Number=0
 
 [Win_2]
 Type="Schematic Editor"
-Loc="-4 30 1019 575"
+Loc="0 30 1023 575"
 State=1
 Number=1
 File="speakers2.sch"
-View="480903 -445783 1931591 686055"
+View="2194160 1287247 3403066 2230445"
 WireWidths=" 0 3048 6096 8128 10160 12700 14224 16764 17780 19304 21844 25400 38100 64516 4064 1524"
 PadDiameters=" 2540 3048 4064 6096 8128 10160 12700 14224 16764 17780 19304 21844 25400 38100 64516 0"
 PadDrills=" 5000 6000 7000 9000 10000 11000 12000 13000 14000 15000 16000 20000 22000 28000 32000 8000"
@@ -356,7 +357,7 @@ ArcDirection=0
 AddLevel=2
 PadsSameType=0
 Layer=91
-Views=" 1: 480903 -445783 1931591 686055"
+Views=" 1: 2194160 1287247 3403066 2230445"
 Sheet=1
 
 [Win_3]
@@ -365,7 +366,7 @@ Loc="0 30 1023 575"
 State=1
 Number=2
 File="speakers2.brd"
-View="307680 -10471 885866 578427"
+View="397220 -46559 1229808 801455"
 WireWidths=" 0 2540 8128 12700 14224 16764 17780 19304 21844 25400 38100 64516 4064 6096 10160 3048"
 PadDiameters=" 2540 3048 4064 6096 8128 10160 12700 14224 16764 17780 19304 21844 25400 38100 64516 0"
 PadDrills=" 5000 6000 7000 9000 10000 11000 12000 13000 14000 15000 16000 20000 22000 28000 32000 8000"
