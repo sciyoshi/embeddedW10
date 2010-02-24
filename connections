@@ -39,3 +39,13 @@ Audio Interface
 	PWM output (uC input capture)
 		PWM_SIG1	RD8	(IC1)
 		PWM_SIG2	RD11	(IC4)
+
+Sub
+	Thermal regulation goes to master amp
+	In
+		SUB_ERRUVTE	RB14
+		SUB_ERROC	RB13
+	Out	
+		SUB_RST12	RF0
+		SUB_RST34	RF1
+
