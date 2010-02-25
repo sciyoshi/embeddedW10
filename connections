@@ -38,7 +38,6 @@ Audio Interface
 				RB15
 	PWM output (uC input capture)
 		PWM_SIG1	RD8	(IC1)
-		PWM_SIG2	RD11	(IC4)
 
 Sub
 	Thermal regulation goes to master amp
