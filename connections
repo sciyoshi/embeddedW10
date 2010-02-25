@@ -23,6 +23,12 @@ Capactive sensing
 	RB4	(AN4)
 	RB5	(AN5)
 
+Extra GPIO
+	RB8
+	RB9
+	RB10
+	RB11
+
 Rotary Switch
 	RD4,5,6
 	input on current pin with weak pull-up
