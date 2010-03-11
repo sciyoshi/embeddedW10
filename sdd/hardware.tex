@@ -136,7 +136,6 @@ The board requires 3 stable voltage levels to operate:
 \item[$V_{IN}$] \hfill \\
 This is the level provided by the power supply of approximately 18V. This powers the amplifiers and the regulators for other voltage levels. It must safely handle an estimated 80W at the very minimum.
 \end{description}
-
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=4in]{schem-power}
@@ -145,6 +144,9 @@ This is the level provided by the power supply of approximately 18V. This powers
 \end{figure}
 
 \section{Circuit Board}
+The circuit board is custom-designed 2-layer FR-4 PCB. It was necessary to use a custom PCB due to the complexity of the circuit, noise considerations, and number of surface mount components required. A number of extra pins are exposed for debugging and any further modification of the circuit. Layout was done with the Cadsoft EAGLE circuit design software.
+
+The amplifiers require special consideration, as there must be an easy path for heat to leave to surrounding areas. This meant placing a number of thermal vias under each of the chips and trying to ensure that there is as extensive of a ground plane as possible in the area for the heat to travel.
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1.8, angle=270]{board}
