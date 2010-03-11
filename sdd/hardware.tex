@@ -1,32 +1,58 @@
 \chapter{Hardware}
 
 \section{Controller: Microchip PIC32MX695F512H}
-The core of the system is the powerful Microchip PIC32MX695F512H controller, which directly interfaces with each of the system's peripherals. This controller was chosen due to the high processing speed, low cost, and abundant peripherals. It operates at 3.3V with an instruction clock of 80MHz, referenced to an 8MHz crystal for improved stability with the extreme temperature fluctuations provided by the amplifiers. The controller is based on a MIPS32 M4K 32-bit core, featuring a 5-stage pipeline, 512kB of flash program memory (with an additional 12kB available for a bootloader), and 128kB of RAM.
+The core of the system is the powerful Microchip PIC32MX695F512H controller, which directly interfaces with each of the system's peripherals. This controller was chosen due to the high processing speed, low cost, and abundant peripherals. It operates at 3.3V with an instruction clock of 80MHz, referenced to an 8MHz crystal for improved stability with the extreme temperature fluctuations provided by the amplifiers. The controller is based on a MIPS32 M4K 32-bit core, featuring a 5-stage pipeline, 512kB of flash program memory (with an additional 12kB available for a bootloader), and 128kB of RAM. The chip uses a a 64-pin TQFP package.
 \subsection{Hardware Peripheral Support}
 The PIC32MX695F512H Its abundant hardware peripherals include:
 \begin{itemize}
 \item 4 I\superscript{2}C channels
 \item 3 SPI channels
 \item 16 channel 10-bit ADC
+\item 2 analog comparators
 \item 10/100Mbit ethernet controller
 \item USB 2.0 transciever with On-The-Go (OTG) and full-speed capabilities
 \item 6 UART channels
 \item 5 16-bit timers
-\item 5 Output Compare modules for PWM output
-\item 5 Input Capture modules for PWM input
+\item 5 Output Compare modules
+\item 5 Input Capture modules
 \item Up to 53 general purpose I/Os, many of which are 5V tolerant. 
 \end{itemize}
 
-The following peripherals are used in our system:
+The following communications peripherals are used in our system:
 \subsubsection*{I\superscript{2}C}
-I\superscript{2}C (\textbf{I}nter-\textbf{I}ntegrated \textbf{C}ircuit) is a bi-directional bus which requires minimal connectivity and can have any number of masters or slaves. Only two signalling wires are required: SDA (\textbf{S}erial \textbf{DA}ta) and SCL (\textbf{S}erial \textbf{CL}ock.) Since, unlike with SPI, there is no \textit{select} line, slave selection is done by prefixing all operations with the address of the intended slave. The I\superscript{2}C bus is used primarily as a messaging bus due to its minial connectivity requirements and low maximum clock rate, which is usually 100 or 400kHz, making it ill suited for applications requiring high data throughput. All of our peripherals operate only as slaves and the controller acts only as a master.
+I\superscript{2}C (\textbf{I}nter-\textbf{I}ntegrated \textbf{C}ircuit) is a bi-directional, synchronous, serial bus which requires minimal connectivity and can have any number of masters or slaves. Only two signalling wires are required: SDA (\textbf{S}erial \textbf{DA}ta) and SCL (\textbf{S}erial \textbf{CL}ock.) Since, unlike with SPI, there is no \textit{select} line, slave selection is done by prefixing all operations with the address of the intended slave. The I\superscript{2}C bus is used primarily as a messaging bus due to its minial connectivity requirements and low maximum clock rate, which is usually 100 or 400kHz, making it ill suited for applications requiring high data throughput. All of our peripherals operate only as slaves and the controller acts only as a master.
 \subsubsection{10-bit ADC}
-The 10-bit \textbf{S}uccessive \textbf{A}pproximation \textbf{R}egister (SAR) \textbf{A}nalog-to-\textbf{D}igital \textbf{C}onverter (ADC) has a 16-input analog multiplexer and can sample values from 0V to 3.3V (Vcc) at up to 1MHz.
+The 10-bit \textbf{S}uccessive \textbf{A}pproximation \textbf{R}egister (SAR) \textbf{A}nalog-to-\textbf{D}igital \textbf{C}onverter (ADC) has a 16-input analog multiplexer and can sample values from 0V to 3.3V ($V_{DD}$) at up to 1MHz.
+\subsubsection{USB Transciever}
+The USB transciever is not used in the system for any essential function. It may be used for programming if there is any trouble with the PICkit2 programmer. The Microchip USB library provides facilities to implement the USB \textbf{C}ommunications \textbf{D}evice \textbf{C}lass (CDC) for simple messaging with a PC for easy debugging.
+\subsubsection{General Purpose Input/Outputs}
+The selectably bidirectional I/O banks are robust, offering a number of features that are configurable on a per-pin basis:
+\begin{itemize}
+\item Weak pull-ups for inputs to eliminate the need for external resistors
+\item Generate interrupt on selectable edge
+\item Select complementary or open-drain to allow driving voltages higher than $V_{DD}$
+\end{itemize}
+\subsubsection{Output Compare}
+The output compare modules compare the value of a timer to one or two fixed values and with output connected to an I/O pin. For our applications, this allows the ability to output a PWM signal using a timer that is continuously looping past a single comparison value.
+\subsubsection{Input Capture}
+Input capture allows timer values to be captured upon external events. This is useful in a wide array of applications where pulses need to be detected and characterized. Our system uses it to take input from a PWM signal.
 
 \subsection{Programming}
 Microchip offers a free C compiler, MPLAB C32, for educational use. Compiled code can be loaded to the chip using the \textbf{I}n-\textbf{C}ircuit \textbf{S}erial \textbf{P}rogramming (ICSP) header on the board and a PICKit2, which is a small USB programming device. Programming may also be done directly over USB to the controller by incorporating Microchip's USB bootloader into our code.
 
 \section{Amplifier A -- Cirrus CS4245}
+The Cirrus CS4245 is a 4-channel Class-D (digital) amplifier with an integrated stereo ADC and audio signal processing capabilities.
+\subsection{ADC}
+The 24-bit 48kHz SAR ADC connects to the output of the input bandpass filter. This bandpass filter eliminates higher frequency noise as well as isolating the $V_{DD}/2$ DC bias applied internally to center the input in the ADC range. This high-frequency noise is particularly dangerous, as it can include high voltage spikes that can damage the ADC. Additionally, it is detrimental to audio fidelity to sample at above the Nyquist freqency ($f_s/2 = 24$kHz), as components above that frequency will appear as if they were folded over the Nyquist frequency.
+\subsection{Output}
+The output of a digital amplifier is a PWM signal which must be filtered through an analog network to reproduce the input signal. The frequency of this signal is configurable on the amplifier (to reduce AM interference) and is normally in the range of 300 to 400kHz. Logic-level outputs are also provided to allow the signals to be passed to another amplifier. The CS4525 can be configured to mix a subwoofer channel as well, using one of these logic-level ouputs.
+
+Though there are 4 single-ended outputs, we use them in a stereo \textbf{B}ridge-\textbf{T}ied \textbf{L}oad (BTL, also known as \textit{H-Bridge}) configuration which uses two single-ended outputs, one inverted from the other, for each channel. The difference between each pair is taken as the output for each channel, providing a maximum voltage swing of $2V_{IN}$. For a fixed load impedance, this is an 4-fold increase in power over a single-ended configuration.
+\subsection{Communications}
+The CS4525 is controlled over I\superscript{2}C in addition to asynchronous interrupt (output) and reset (input) lines. The LSB of the slave address of the device is configured in hardware by tying a pin to either $V_{CC}$ or ground. The amplifier cannot report errors solely using I\superscript{2}C, since it is required that the master initialize each communication. The asynchronous interrupt line is therefore used to signal to the controller that it must read the \textit{Interrupt Status} register in order to determine the nature of the error.
+\subsection{DSP}
+\subsection{Power}
+
 
 \section{Amplifier B -- Cirrus CS4412}
 
@@ -40,4 +66,6 @@ The 16x2 character LCD employs the industry-standard protocol of the Hitachi HD4
 \section{Continuous Rotary Switch}
 
 \section{Power Regulation}
+
+
 
