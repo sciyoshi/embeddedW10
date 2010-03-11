@@ -56,6 +56,7 @@ The 24-bit 48kHz SAR ADC connects to the output of the input bandpass filter. Th
 	\caption[Schematic -- Analog Input Filtering]%
 	{Schematic of the amplifier input filters}
 \end{figure}
+To operate the ADC, the system uses a 24.576MHz ($48$kHZ$*512$) crystal for its clock source.
 
 \subsection{Output}
 The output of a digital amplifier is a PWM signal which must be filtered through an analog network to reproduce the input signal. The frequency of this signal is configurable on the amplifier (to reduce AM interference) and is normally in the range of 300 to 400kHz. Logic-level outputs are also provided to allow the signals to be passed to another amplifier. The CS4525 can be configured to mix a subwoofer channel as well, using one of these logic-level ouputs.
@@ -73,7 +74,7 @@ The CS4525 is controlled over I\superscript{2}C in addition to asynchronous inte
 The onboard DSP of the CS4525 provides a number of built-in effects that can be individually selected and controlled:
 \begin{description}
 \item[Equalizer] \hfill \\
-Adjustable gain for adjustable frequency ranges corresponding to \emph{Bass}, \emph{Mid-range}, and \emph{Treble}. 
+Adjustable gain for configurable frequency ranges corresponding to \emph{Bass}, \emph{Mid-range}, and \emph{Treble}. 
 \item[Dynamic Loudness Compensation] \hfill \\
 The input volume is scaled to maintain an acceptable short-time average power. This has the effect of normalizing volume levels to improve audibility of material.
 \item[Thermal Foldback] \hfill \\
@@ -100,27 +101,42 @@ The Cirrus CS4412 contains the same amplifier circuitry as the CS4525 but withou
 	\caption[Schematic -- Cirrus CS4412]%
 	{Schematic of the CS4412 amplifier and its connectivity}
 \end{figure}
-Like the CS4525, it can handle up to 30W but is driving only a single load. The CS4412 also comes in a 48-pin QFN with a similar thermal pad on the bottom.
+Like the CS4525, it can handle up to 30W but is driving only a single load. The CS4412 also comes in a 48-pin QFN with a similar thermal pad on the bottom, imposing the same PCB layout restrictions.
 
 \section{EEPROM -- Microchip 24FC1025}
 \label{sec:eeprom}
-The 24FC1025 is a common I\superscript{2}C EEPROM addressing 1024kB of data and offering a minimum of 1 million write cycles and 200 years of data retention. As the microcontroller has only flash (which supports far fewer write cycles) available as non-volatile memory, the system uses the EEPROM to periodically save its settings. As there are an excess of I\superscript{2}C channels, the system uses a second channel rather than sharing with the CS4525. The chip comes in a n 8-pin PDIP and happily operates at 3.3V. 
+The 24FC1025 is a common I\superscript{2}C EEPROM addressing 1024kB of data and offering a minimum of 1 million write cycles and 200 years of data retention. As the microcontroller has only flash (which supports far fewer write cycles) available as non-volatile memory, the system uses the EEPROM for long term storage of settings. As there are an excess of I\superscript{2}C channels, the system uses a second channel rather than sharing with the CS4525. The chip comes in a n 8-pin PDIP and happily operates at 3.3V. 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=3in]{schem-eeprom}
+	\caption[Schematic -- Microchip 24FC12025]%
+	{Schematic of the Microchip 24FC1025 EEPROM and its connectivity}
+\end{figure}
+
 
 \section{LCD -- Hitachi HD44780}
 \label{sec:lcd}
-The 16x2 blue-backlit character LCD employs the industry-standard protocol of the Hitachi HD44780 controller. The specifications for the protocol allow for either a 4-bit or 8-bit wide data bus, and due to the large number of unused pins, we have opted for the faster 8-bit bus. The 16-pin HD44780 header includes these 8 data pins as well as \emph{Enable}, \emph{Read/Write Select}, and \emph{Register Select}. Additionally, there is a connection for power to the backlight as well as a contrast adjustment pin usually controlled with a voltage divider. These are both instead controlled by PWM, so as to be software-adjustable. As the LCD is natively 5V, the pins on the controller must be used as open-drain to allow access to the full 5V of the LCD.
+The 16x2 blue-backlit character LCD employs the industry-standard protocol of the Hitachi HD44780 controller. The specifications for the protocol allow for either a 4-bit or 8-bit wide data bus, and due to the large number of unused pins, we have opted for the faster 8-bit bus. The 16-pin HD44780 header includes these 8 data pins as well as \emph{Enable}, \emph{Read/Write Select}, and \emph{Register Select}. Additionally, there is a connection for power to the backlight as well as a contrast adjustment pin usually controlled with a voltage divider. These are both instead controlled by PWM, so as to be software-adjustable. As the LCD is natively 5V, the pins on the controller must be used as open-drain to allow access to the full 5V of the LCD. The LCD is accepting of the 3.3V input provided by the microcontroller. Additionally, the microcontroller pins used for the data lines from the LCD are tolerant of the 5V from the LCD.
 
 \section{Buttons}
 \label{sec:buttons}
 Capacitive buttons are implemented using the PIC32MX695F512H's ADC, which is used periodically for each of 4 buttons: \emph{Menu/Select}, \emph{Exit}, \emph{Home}, and \emph{Mute}. Capacitive buttons use the variations in capacitance of a conductor caused by the user's finger touching the button. To do this with an ADC, the ADC is first connected to $V_{DD}$ by the multiplexer to fully charge the sample-and-hold capacitor in the ADC. The pin for the button is set as a digital output to ground to ensure that it holds no charge. The pin is then selected as an analog input, connecting the uncharged capacitance of the switch to the sample and hold capacitor in the ADC. This has the effect of a capacitive voltage divider, presenting an approximate relative value of the capacitance of the switch. The system tracks those values over time, watching for variations from an average of recent samples. 
-
-The buttons are connected to pins \emph{AN2}, \emph{AN3}, \emph{AN4}. and \emph{AN5}.
 
 \section{Continuous Rotary Switch}
 \label{sec:rotary}
 The rotary switch uses a 12-position make-before-break rotary switch and 3 general purpose I/Os to detect each transition. The selector pin of the rotary switch is tied to ground, with 3 input pins assigned in cycles around the switch with weak pull-ups enabled. At any rest state, there will be one pin pulled to ground by the selector. In the transition state in either direction, one of the adjacent pins will throw an interrupt on the falling edge as it is pulled to ground by the selector. Only when the previous pin becomes disconnected will the switch operation be recognized as complete. Since the total number of positions is a multiple of 3, the order of the pins on the switch will be repeated 4 times.
 
 \section{Power Regulation}
+The board requires 3 stable voltage levels to operate:
+\begin{description}
+\item[3.3V ($V_{DD}$)] \hfill \\
+3.3V is considered the primary logic-level voltage for the system, powering the amplifier logic, the microcontroller, and the EEPROM. This level is provided by an adjustable LM317 positive regulator with appropriate component values to provide 3.3V. This regulator can deliver up to 1.5A, which is well above the maximum power draw of dependent components. 
+\item[5V] \hfill \\
+5V is required for the LCD and is provided by an LM78L05 5V positive low-dropout regulator. This regulator is able to provide up to 100mA, well exceeding the maximum power draw of the LCD.
+\item[$V_{IN}$] \hfill \\
+This is the level provided by the power supply of approximately 18V. This powers the amplifiers and the regulators for other voltage levels. It must safely handle an estimated 80W at the very minimum.
+\end{description}
+
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=4in]{schem-power}
