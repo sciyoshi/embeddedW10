@@ -1,6 +1,7 @@
 \chapter{Hardware}
 
 \section{Controller: Microchip PIC32MX695F512H}
+\label{sec:pic32}
 The core of the system is the powerful Microchip PIC32MX695F512H controller, which directly interfaces with each of the system's peripherals. This controller was chosen due to the high processing speed, low cost, and abundant peripherals. It operates at 3.3V with an instruction clock of 80MHz, referenced to an 8MHz crystal for improved stability with the extreme temperature fluctuations provided by the amplifiers. The controller is based on a MIPS32 M4K 32-bit core, featuring a 5-stage pipeline, 512kB of flash program memory (with an additional 12kB available for a bootloader), and 128kB of RAM. The chip uses a a 64-pin TQFP package.
 \subsection{Hardware Peripheral Support}
 The PIC32MX695F512H Its abundant hardware peripherals include:
@@ -46,9 +47,10 @@ Input capture allows timer values to be captured upon external events. This is u
 Microchip offers a free C compiler, MPLAB C32, for educational use. Compiled code can be loaded to the chip using the \textbf{I}n-\textbf{C}ircuit \textbf{S}erial \textbf{P}rogramming (ICSP) header on the board and a PICKit2, which is a small USB programming device. Programming may also be done directly over USB to the controller by incorporating Microchip's USB bootloader into our code.
 
 \section{Amplifier A -- Cirrus CS4245}
+\label{sec:cs4525}
 The Cirrus CS4245 is a 4-channel Class-D (digital) amplifier with an integrated stereo ADC and audio signal processing capabilities.
-
 \subsection{ADC}
+\label{sec:cs4525-adc}
 The 24-bit 48kHz SAR ADC connects to the output of the input bandpass filter. This bandpass filter eliminates higher frequency noise as well as isolating the $V_{DD}/2$ DC bias applied internally to center the input in the ADC range. This high-frequency noise is particularly dangerous, as it can include high voltage spikes that can damage the ADC. Additionally, it is detrimental to audio fidelity to sample at above the Nyquist freqency ($f_s/2 = 24$kHz), as components above that frequency will appear as if they were folded over the Nyquist frequency.
 \begin{figure}[H]
 	\centering
@@ -79,6 +81,8 @@ Adjustable gain for configurable frequency ranges corresponding to \emph{Bass}, 
 The input volume is scaled to maintain an acceptable short-time average power. This has the effect of normalizing volume levels to improve audibility of material.
 \item[Thermal Foldback] \hfill \\
 In the case of an unacceptable increase in temperature, the amplifier can automatically reduce its volume incrementally until a safe temerature is reached. This should offer the protection necessary to avoid the need for shutdown due to a thermal error condition.
+\item[Peak Detection and Limiting] \hfill \\
+In the case of a signal that is clipping, the amplifier can automatically reduce its volume to maintain signal integrity. This limiter threshold is configurable.
 \item[BiQuad Filter] \hfill \\
 A standard biquad filter is available with programmable filter coefficients to implement a generic, user-designed filter.
 \end{description}
