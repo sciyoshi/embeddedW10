@@ -17,7 +17,12 @@ The PIC32MX695F512H Its abundant hardware peripherals include:
 \item 5 Input Capture modules
 \item Up to 53 general purpose I/Os, many of which are 5V tolerant. 
 \end{itemize}
-
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=4in]{schem-pic32}
+	\caption[Schematic -- Microcontroller]%
+	{Schematic of the PIC32MX695F512H and surrounding connectivity}
+\end{figure}
 The following communications peripherals are used in our system:
 \subsubsection*{I\superscript{2}C}
 I\superscript{2}C (\textbf{I}nter-\textbf{I}ntegrated \textbf{C}ircuit) is a bi-directional, synchronous, serial bus which requires minimal connectivity and can have any number of masters or slaves. Only two signalling wires are required: SDA (\textbf{S}erial \textbf{DA}ta) and SCL (\textbf{S}erial \textbf{CL}ock.) Since, unlike with SPI, there is no \textit{select} line, slave selection is done by prefixing all operations with the address of the intended slave. The I\superscript{2}C bus is used primarily as a messaging bus due to its minial connectivity requirements and low maximum clock rate, which is usually 100 or 400kHz, making it ill suited for applications requiring high data throughput. All of our peripherals operate only as slaves and the controller acts only as a master.
@@ -42,19 +47,46 @@ Microchip offers a free C compiler, MPLAB C32, for educational use. Compiled cod
 
 \section{Amplifier A -- Cirrus CS4245}
 The Cirrus CS4245 is a 4-channel Class-D (digital) amplifier with an integrated stereo ADC and audio signal processing capabilities.
+
 \subsection{ADC}
 The 24-bit 48kHz SAR ADC connects to the output of the input bandpass filter. This bandpass filter eliminates higher frequency noise as well as isolating the $V_{DD}/2$ DC bias applied internally to center the input in the ADC range. This high-frequency noise is particularly dangerous, as it can include high voltage spikes that can damage the ADC. Additionally, it is detrimental to audio fidelity to sample at above the Nyquist freqency ($f_s/2 = 24$kHz), as components above that frequency will appear as if they were folded over the Nyquist frequency.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=4in]{schem-input}
+	\caption[Schematic -- Analog Input Filtering]%
+	{Schematic of the amplifier input filters}
+\end{figure}
+
 \subsection{Output}
 The output of a digital amplifier is a PWM signal which must be filtered through an analog network to reproduce the input signal. The frequency of this signal is configurable on the amplifier (to reduce AM interference) and is normally in the range of 300 to 400kHz. Logic-level outputs are also provided to allow the signals to be passed to another amplifier. The CS4525 can be configured to mix a subwoofer channel as well, using one of these logic-level ouputs.
-
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=6.5in]{schem-output}
+	\caption[Schematic -- Amplifier Output Filters]%
+	{Schematic of the output filters for the subwoofer, left, and right channels}
+\end{figure}
 Though there are 4 single-ended outputs, we use them in a stereo \textbf{B}ridge-\textbf{T}ied \textbf{L}oad (BTL, also known as \textit{H-Bridge}) configuration which uses two single-ended outputs, one inverted from the other, for each channel. The difference between each pair is taken as the output for each channel, providing a maximum voltage swing of $2V_{IN}$. For a fixed load impedance, this is an 4-fold increase in power over a single-ended configuration.
 \subsection{Communications}
 The CS4525 is controlled over I\superscript{2}C in addition to asynchronous interrupt (output) and reset (input) lines. The LSB of the slave address of the device is configured in hardware by tying a pin to either $V_{CC}$ or ground. The amplifier cannot report errors solely using I\superscript{2}C, since it is required that the master initialize each communication. The asynchronous interrupt line is therefore used to signal to the controller that it must read the \textit{Interrupt Status} register in order to determine the nature of the error.
 \subsection{DSP}
 \subsection{Power}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=5in]{schem-cs4525}
+	\caption[Schematic -- CS4525 Amplifier]%
+	{Schematic of the CS4525 and its connectivity}
+\end{figure}
 
 
 \section{Amplifier B -- Cirrus CS4412}
+The Cirrus CS4412 contains the same amplifier circuitry as the CS4525 but without the ADC and signal processing features. It is therefore well suited as a peripheral to the CS4525, amplifying an additional channel. It uses a remixed, processed, logic-level signal from the CS4525 for input and is connected in a mono BTL configuration to a lower impedance subwoofer. As this amplifier is not capable of any bus communications, any errors are caught by the interrupts on the PIC32. For thermal conditions that would not warrant an error but do require notification of the amplifier for the application of thermal foldback, there is an additional line to notify the CS4525 of this state.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=4in]{schem-cs4412}
+	\caption[Schematic -- Cirrus CS4412]%
+	{Schematic of the CS4412 amplifier and its connectivity}
+\end{figure}
+Like the CS4525, it can handle up to 30W but is driving only a single load.
 
 \section{EEPROM -- Microchip 24FC1025}
 
@@ -66,6 +98,17 @@ The 16x2 character LCD employs the industry-standard protocol of the Hitachi HD4
 \section{Continuous Rotary Switch}
 
 \section{Power Regulation}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=4in]{schem-power}
+	\caption[Power Regulation]%
+	{Schematic of the power regulator circuitry}
+\end{figure}
 
-
-
+\section{Circuit Board}
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=1.8, angle=270]{board}
+	\caption[PCB Layout]%
+	{Printed circuit board layout}
+\end{figure}
