@@ -1,1 +1,51 @@
 \chapter{Software}
+
+\section{LCD Driver}
+The LCD driver is controlled using a list of functions that write to the LCD board in different ways. There is a function that writes a new line, a function that writes to a specified column and row, there is a function that writes a single character, a function that can write a single byte, and a function that can clear the screen so that more data can be written to it. The purpose of having all of these different ways to manipulate the LCD screen is two-fold. One, the various functions for writing to the LCD allowed for greater control over the way the user interface is designed. The functionality provided by the LCD interface allows us to implement features like writing non-ASCII characters to the screen (necessary to provide the ability to show a visualization when no music is playing). Second, we can use many of these functions during testing to ensure that the LCD board, and the modules connected to it functioned properly. Additionally the brightness and contrast can be controlled by using a PWM signal. There are additional software functions for controlling these variables by generating different pulse widths for each of these variables based on settings defined through the menu system. These functions together provide a driver interface for the rest of the software to use.
+\section{User Interface}
+\label{sec:ui}
+
+One of the more important software design issues that we needed to consider was the user interface (UI). When designing any system that is user-controlled, it is crucial to design a UI that is both simple and effective. We have chosen to make the interface based on a state machine implemented in an event-driven manner, similar to many real-time systems. The structure of this state machine is described in more detail below; a diagram can be found in REFERENCE HERE.
+
+Initially, the system is in the \emph{Main} state. In this state, a user can control the volume using the knob, and the LCD will display the volume level. This display times out after 10 seconds.
+
+As described in \ref{sec:buttons}, the system also has four available buttons. In any state, the bottom button (the home button) will cause the system to return to the \emph{Main} state. This provides the user with a quick way to exit any menu. The top left button (the mute button) will also work in every state, and will cause the system to either mute or unmute the audio output. The top middle button (the menu/select button) will cause a state-dependent transition corresponding to ``selecting'' a menu option or entering the main menu. The last button (the back button) will take the user to the previous menu. There will be a timeout time (which can be chosen by the user, but defaulted at 30 seconds) after which the system will go back to the initial state.
+
+The menu structure corresponds directly to the states in the state machine. These are shown in their logical structure below.
+
+\begin{itemize}
+
+\item Equalizer
+\begin{itemize}
+	\item Bass
+	\item Treble
+	\item 
+	\item Adaptive Loudness
+\end{itemize}
+
+\item System
+\begin{itemize}
+	\item Enable/Disable Spectrum Analyzer
+	\item Screen Contrast
+	\item Screen Brightness
+\end{itemize}
+
+\item Presets
+\begin{itemize}
+	\item Load Preset
+	\begin{itemize}
+		\item Preset 1
+		\item Preset 2
+		\item Preset 3
+	\end{itemize}
+
+	\item Save Preset
+	\begin{itemize}
+		\item Preset 1
+		\item Preset 2
+		\item Preset 3
+	\end{itemize}
+
+\end{itemize}
+
+\end{itemize}

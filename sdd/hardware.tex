@@ -67,9 +67,23 @@ The output of a digital amplifier is a PWM signal which must be filtered through
 \end{figure}
 Though there are 4 single-ended outputs, we use them in a stereo \textbf{B}ridge-\textbf{T}ied \textbf{L}oad (BTL, also known as \textit{H-Bridge}) configuration which uses two single-ended outputs, one inverted from the other, for each channel. The difference between each pair is taken as the output for each channel, providing a maximum voltage swing of $2V_{IN}$. For a fixed load impedance, this is an 4-fold increase in power over a single-ended configuration.
 \subsection{Communications}
-The CS4525 is controlled over I\superscript{2}C in addition to asynchronous interrupt (output) and reset (input) lines. The LSB of the slave address of the device is configured in hardware by tying a pin to either $V_{CC}$ or ground. The amplifier cannot report errors solely using I\superscript{2}C, since it is required that the master initialize each communication. The asynchronous interrupt line is therefore used to signal to the controller that it must read the \textit{Interrupt Status} register in order to determine the nature of the error.
+The CS4525 is controlled over I\superscript{2}C in addition to asynchronous interrupt (output) and reset (input) lines. The LSB of the slave address of the device is configured in hardware by tying a pin to either $V_{CC}$ or ground. The amplifier cannot report errors solely using I\superscript{2}C, since it is required that the master initialize each communication. The asynchronous interrupt line is therefore used to signal to the controller that it must read the \textit{Interrupt Status} register in order to determine the nature of the error. The accepted logic level of the amplifier is configurable and set to 3.3V in our case.
 \subsection{DSP}
+\label{sec:dsp}
+The onboard DSP of the CS4525 provides a number of built-in effects that can be individually selected and controlled:
+\begin{description}
+\item[Equalizer] \hfill \\
+Adjustable gain for adjustable frequency ranges corresponding to \emph{Bass}, \emph{Mid-range}, and \emph{Treble}. 
+\item[Dynamic Loudness Compensation] \hfill \\
+The input volume is scaled to maintain an acceptable short-time average power. This has the effect of normalizing volume levels to improve audibility of material.
+\item[Thermal Foldback] \hfill \\
+In the case of an unacceptable increase in temperature, the amplifier can automatically reduce its volume incrementally until a safe temerature is reached. This should offer the protection necessary to avoid the need for shutdown due to a thermal error condition.
+\item[BiQuad Filter] \hfill \\
+A standard biquad filter is available with programmable filter coefficients to implement a generic, user-designed filter.
+\end{description}
+
 \subsection{Power}
+As a class-D amplifier, the CS4525 is very efficient, delivering approximately 90\% of its consumed power to the loads. It uses a compact 48-pin QFN package with an additional thermal pad on the underside of the chip for heat transfer. The chip is designed to operate without a heatsink, therefore imposing design restrictions on the circuit board to maximize distribution and dissipation of heat.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=5in]{schem-cs4525}
@@ -79,23 +93,32 @@ The CS4525 is controlled over I\superscript{2}C in addition to asynchronous inte
 
 
 \section{Amplifier B -- Cirrus CS4412}
-The Cirrus CS4412 contains the same amplifier circuitry as the CS4525 but without the ADC and signal processing features. It is therefore well suited as a peripheral to the CS4525, amplifying an additional channel. It uses a remixed, processed, logic-level signal from the CS4525 for input and is connected in a mono BTL configuration to a lower impedance subwoofer. As this amplifier is not capable of any bus communications, any errors are caught by the interrupts on the PIC32. For thermal conditions that would not warrant an error but do require notification of the amplifier for the application of thermal foldback, there is an additional line to notify the CS4525 of this state.
+The Cirrus CS4412 contains the same amplifier circuitry as the CS4525 but without the ADC and signal processing features. It is therefore well suited as a peripheral to the CS4525, amplifying an additional channel. It uses a remixed, processed, logic-level signal from the CS4525 for input and is connected in a mono BTL configuration to a lower impedance subwoofer. As this amplifier is not capable of any bus communications, any errors are caught by the interrupts on the PIC32. For thermal conditions that would not warrant an error but do require notification of the amplifier for the application of thermal foldback, there is an additional line to notify the CS4525 of this state. 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=4in]{schem-cs4412}
 	\caption[Schematic -- Cirrus CS4412]%
 	{Schematic of the CS4412 amplifier and its connectivity}
 \end{figure}
-Like the CS4525, it can handle up to 30W but is driving only a single load.
+Like the CS4525, it can handle up to 30W but is driving only a single load. The CS4412 also comes in a 48-pin QFN with a similar thermal pad on the bottom.
 
 \section{EEPROM -- Microchip 24FC1025}
+\label{sec:eeprom}
+The 24FC1025 is a common I\superscript{2}C EEPROM addressing 1024kB of data and offering a minimum of 1 million write cycles and 200 years of data retention. As the microcontroller has only flash (which supports far fewer write cycles) available as non-volatile memory, the system uses the EEPROM to periodically save its settings. As there are an excess of I\superscript{2}C channels, the system uses a second channel rather than sharing with the CS4525. The chip comes in a n 8-pin PDIP and happily operates at 3.3V. 
 
 \section{LCD -- Hitachi HD44780}
-The 16x2 character LCD employs the industry-standard protocol of the Hitachi HD44780 controller.
+\label{sec:lcd}
+The 16x2 blue-backlit character LCD employs the industry-standard protocol of the Hitachi HD44780 controller. The specifications for the protocol allow for either a 4-bit or 8-bit wide data bus, and due to the large number of unused pins, we have opted for the faster 8-bit bus. The 16-pin HD44780 header includes these 8 data pins as well as \emph{Enable}, \emph{Read/Write Select}, and \emph{Register Select}. Additionally, there is a connection for power to the backlight as well as a contrast adjustment pin usually controlled with a voltage divider. These are both instead controlled by PWM, so as to be software-adjustable. As the LCD is natively 5V, the pins on the controller must be used as open-drain to allow access to the full 5V of the LCD.
 
 \section{Buttons}
+\label{sec:buttons}
+Capacitive buttons are implemented using the PIC32MX695F512H's ADC, which is used periodically for each of 4 buttons: \emph{Menu/Select}, \emph{Exit}, \emph{Home}, and \emph{Mute}. Capacitive buttons use the variations in capacitance of a conductor caused by the user's finger touching the button. To do this with an ADC, the ADC is first connected to $V_{DD}$ by the multiplexer to fully charge the sample-and-hold capacitor in the ADC. The pin for the button is set as a digital output to ground to ensure that it holds no charge. The pin is then selected as an analog input, connecting the uncharged capacitance of the switch to the sample and hold capacitor in the ADC. This has the effect of a capacitive voltage divider, presenting an approximate relative value of the capacitance of the switch. The system tracks those values over time, watching for variations from an average of recent samples. 
+
+The buttons are connected to pins \emph{AN2}, \emph{AN3}, \emph{AN4}. and \emph{AN5}.
 
 \section{Continuous Rotary Switch}
+\label{sec:rotary}
+The rotary switch uses a 12-position make-before-break rotary switch and 3 general purpose I/Os to detect each transition. The selector pin of the rotary switch is tied to ground, with 3 input pins assigned in cycles around the switch with weak pull-ups enabled. At any rest state, there will be one pin pulled to ground by the selector. In the transition state in either direction, one of the adjacent pins will throw an interrupt on the falling edge as it is pulled to ground by the selector. Only when the previous pin becomes disconnected will the switch operation be recognized as complete. Since the total number of positions is a multiple of 3, the order of the pins on the switch will be repeated 4 times.
 
 \section{Power Regulation}
 \begin{figure}[H]
