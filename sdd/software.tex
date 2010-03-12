@@ -6,20 +6,6 @@ The software component of the amplifier system will be running on top of an embe
 
 DIAGRAM HERE
 
-\section{Main Task}
-
-The main task will be the initial one started by the real-time operating system, in charge of handling communication between the individual subsystems as well as displaying the menu.
-
-\begin{itemize}
-\item \verb|void main(void)|
-
-Initializes the entire system and then runs the menu task.
-
-\item \verb|void menu(void)|
-
-Runs the state machine for the user interface described in \autoref{sec:ui} as a task.
-\end{itemize}
-
 \section{Input Drivers (Buttons and Scroll Wheel)}
 
 tasks
@@ -29,20 +15,44 @@ The CS4525 uses I\superscript{2}C and a series of single-byte configuration regi
 
 \subsection*{Functions}
 \begin{itemize}
-\item \texttt{void amp\_init(void)} \\ Initializes I\superscript{2}C channel 1 and loads default values
-\item \texttt{void amp\_write\_byte(char addr, char value)} \\ Set a byte in the amplifier registers
-\item \texttt{char amp\_read\_byte(char addr)} \\ Set a byte in the amplifier registers
+\item \verb|void amp_init(void)|
+
+Initializes I\superscript{2}C channel 1 and loads default values.
+
+\item \verb|void amp_write_byte(char addr, char value)|
+
+Sets a byte in the amplifier registers.
+
+\item \verb|char amp_read_byte(char addr)|
+
+Reads a byte in the amplifier registers.
 \end{itemize}
 
 \section{EEPROM Driver}
-The EEPROM is very simple in function, using a buffer to allow writing of up to 128 bytes at a time.
+
+The EEPROM is very simple in function, using a buffer to allow writing of up to 128 bytes at a time. The microprocessor communicates with the EEPROM using an I\superscript{2}C interface.
+
 \subsection*{Functions}
 \begin{itemize}
-\item \texttt{void e2p\_init(void)} \\ Initializes I\superscript{2}C channel 2
-\item \texttt{void e2p\_write\_byte(char addr, char value)} \\ Write a single byte
-\item \texttt{char e2p\_read\_byte(char addr)} \\ Read a single byte
-\item \texttt{char e2p\_write(char addr, char len, char* buf)} \\ Write an arbitrary amount of data; return count
-\item \texttt{char e2p\_read(char addr, char len, char* buf)} \\ Read an arbitrary amount of data; return count
+\item \verb|void e2p_init(void)|
+
+Initializes I\superscript{2}C channel 2.
+
+\item \verb|void e2p_write_byte(char addr, char value)|
+
+Writes a single byte to the EEPROM.
+
+\item \verb|char e2p_read_byte(char addr)|
+
+Reads a single byte from the EEPROM.
+
+\item \verb|char e2p_write(char addr, char len, char* buf)|
+
+Writes an arbitrary amount of data to the EEPROM and returns the count.
+
+\item \verb|char e2p_read(char addr, char len, char* buf)|
+
+Reads an arbitrary amount of data from the EEPROM and returns the count.
 \end{itemize}
 
 \section{LCD Driver}
@@ -51,6 +61,7 @@ The LCD driver is controlled using a list of functions that write to the LCD boa
 
 Timing is an issue when writing to LCD; to avoid complexity, we have chosen to make these functions block and use timed poll loops instead of deferring execution to the scheduler. This could later be transparently changed if performance is an issue.
 
+\subsection*{Functions}
 \begin{itemize}
 \item \verb|void lcd_init(void)|
 
@@ -119,3 +130,27 @@ In this menu description, \textbf{(M)} corresponds to a menu or submenu. When th
 \section{Spectrogram}
 \label{sec:spectrogram}
 While the system is idle, a spectrogram will be played on the screen, displaying frequency-domain power spectrum of the output signal. This uses the logic-level PWM output from the amplifier for a single channel as its input source. As this feature is a novelty and the LCD refresh rate is rather low, the computation of this spectrum only needs to occur about 10 times per second and only when on the main screen. The spectrogram uses data sampled using the \emph{Input Capture} module on the controller, capturing a low-resolution signal at approximately 300kHz. At this rate, 256 samples will be used for each spectrum, with each of the 16 spectrogram bins being summed over 8 DFT bins. The system will use the Goertzel DFT algorithm, which allows the assignment of arbitrary bin values so that the frequency spectrum can be shown on a logarithmic scale.  
+
+\subsection*{Functions}
+\begin{itemize}
+\item \verb|void spectrogram(void)|
+
+Runs the spectrogram task.
+\end{itemize}
+
+\section{Main Task}
+
+The main task will be the initial one started by the real-time operating system, in charge of handling communication between the individual subsystems as well as displaying the menu.
+
+When entering the \emph{Main} (initial) state, the menu task will (depending on the user's configuration settings) launch the spectrogram task (\autoref{sec:spectogram}) and display additional status information on the LCD. Here it will wait for a button to be pressed or (if muted) a timeout to occur. Inside the menus it will wait for either a timeout (to return to the \emph{Main} state) or a button press (and perform the appropriate action as described in \autoref{sec:ui}).
+
+\subsection*{Functions}
+\begin{itemize}
+\item \verb|void main(void)|
+
+Initializes the entire system and then runs the menu task.
+
+\item \verb|void menu(void)|
+
+Runs the state machine for the user interface described in \autoref{sec:ui} as a task.
+\end{itemize}
