@@ -1,5 +1,10 @@
 \cleardoublepage
 \phantomsection
-\addcontentsline{toc}{chapter}{Purpose of This Document}
-\chapter*{Purpose of This Document}
+\addcontentsline{toc}{chapter}{Introduction}
+\chapter*{Introduction}
+\section*{Purpose of This Document}
 This System Design Document (SDD) provides the reader with a general, yet complete description of an embedded digital audio amplification device. This includes all of the hardware components necessary, features and capabilities of these hardware components, and connections between each of these devices. This document will also describe the software components necessary, including operating system requirements, timing requirements, deadlines, program states, and interactions points between the user and the software based system. The design of the system which is described herein is a manifestation of the general requirements and deadlines listed in the System Requirements Specification (SRS), with some considerations into production feasibility and intuitive human interaction.
+
+\section*{Overview}
+The complete system consists of three main layers. The highest level is the user interaction layer, which consists of the user interface through which the system is controlled. This user interface will provide the user with feedback as to the current system state, as well as allow for modification of the system’s state through a simple menu system. The middle level in this embedded system is the software layer, wherein the current system state is stored. This layer acts as a mediation layer between the user interaction layer and hardware layer, by controlling the relatively complicated inputs to the hardware based on a set of simple options specified by the user in the top layer. This layer will consist of a simple set of functions built on top of a real-time operating system known as Free RTOS. It will also poll for the hardware state at set intervals (using hardware timers) and check for error conditions. The lowest layer in the system is the hardware layer, which controls the amplification of sound as per the user’s preferences. This layer is the most important and complicated layer of the system and will consist of the hardware connections between various separate hardware devices. This hardware interacts with the input signals both for amplification purposes as well as audio sampling and state feedback to the software layer. It also hosts and executes the software and provides it with timers so as to allow it to function.
+

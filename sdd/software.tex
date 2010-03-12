@@ -2,9 +2,15 @@
 
 \section{Overview}
 \label{sec:software-overview}
-The software component of the amplifier system will be running on top of an embedded real-time operating system (such as FreeRTOS). This operating system will provide the task management and scheduling required by the rest of the application. The main software components are shown in DIAGRAM REFERENCE; a description of each can be found in the following sections. Along with each component, a list of publicly-available functions for that component is listed. This helps better define the software interface requirements that will be used by the other modules in the system.
+The software component of the amplifier system will be running on top of an embedded real-time operating system (such as FreeRTOS). This operating system will provide the task management and scheduling required by the rest of the application. The main software components are shown in \autoref{fig:diagram}; a description of each can be found in the following sections. Along with each component, a list of publicly-available functions for that component is listed. This helps better define the software interface requirements that will be used by the other modules in the system.
 
-DIAGRAM HERE
+\begin{figure}[H]
+	\centering
+	\includegraphics{diagram}
+	\caption[Software Componenent Overview]%
+	{Overview of the software components of the Digital Amplifier system.}
+	\label{fig:diagram}
+\end{figure}
 
 \section{Input Drivers (Buttons and Scroll Wheel)}
 \label{sec:io-driver}
