@@ -2,15 +2,23 @@
 
 \section{Overview}
 
-The software component of the amplifier system will be running on top of an embedded real-time operating system (such as FreeRTOS). This operating system will provide the task management and scheduling required by the rest of the application. The main software components are shown in DIAGRAM REFERENCE; a description of each can be found in the following sections.
+The software component of the amplifier system will be running on top of an embedded real-time operating system (such as FreeRTOS). This operating system will provide the task management and scheduling required by the rest of the application. The main software components are shown in DIAGRAM REFERENCE; a description of each can be found in the following sections. Along with each component, a list of publicly-available functions for that component is listed. This helps better define the software interface requirements that will be used by the other modules in the system.
 
 DIAGRAM HERE
 
 \section{Main Task}
 
-displays menu and all that
+The main task will be the initial one started by the real-time operating system, in charge of handling communication between the individual subsystems as well as displaying the menu.
 
-functions
+\begin{itemize}
+\item \verb|void main(void)|
+
+Initializes the entire system and then runs the menu task.
+
+\item \verb|void menu(void)|
+
+Runs the state machine for the user interface described in \autoref{sec:ui} as a task.
+\end{itemize}
 
 \section{Input Drivers (Buttons and Scroll Wheel)}
 
@@ -41,15 +49,21 @@ The EEPROM is very simple in function, using a buffer to allow writing of up to 
 
 The LCD driver is controlled using a list of functions that write to the LCD board in different ways. There is a function that writes a new line, a function that writes to a specified column and row, there is a function that writes a single character, a function that can write a single byte, and a function that can clear the screen so that more data can be written to it. The purpose of having all of these different ways to manipulate the LCD screen is two-fold. One, the various functions for writing to the LCD allowed for greater control over the way the user interface is designed. The functionality provided by the LCD interface allows us to implement features like writing non-ASCII characters to the screen (necessary to provide the ability to show a visualization when no music is playing). Second, we can use many of these functions during testing to ensure that the LCD board, and the modules connected to it functioned properly. Additionally the brightness and contrast can be controlled by using a PWM signal. There are additional software functions for controlling these variables by generating different pulse widths for each of these variables based on settings defined through the menu system. These functions together provide a driver interface for the rest of the software to use.
 
-\begin{center}
-\begin{tabular}{l|l}
-Function & Description \\
-\hline
-\texttt{void lcd\_init(void)} & Initializes communication with the LCD device \\
-\hline
-\texttt{void lcd\_init(void)} & Initializes communication with the LCD device \\
-\end{tabular}
-\end{center}
+Timing is an issue when writing to LCD; to avoid complexity, we have chosen to make these functions block and use timed poll loops instead of deferring execution to the scheduler. This could later be transparently changed if performance is an issue.
+
+\begin{itemize}
+\item \verb|void lcd_init(void)|
+
+Initializes communication with the LCD device.
+
+\item \verb|void lcd_clear(void)|
+
+Clears the LCD display.
+
+\item \verb|void lcd_print(uchar line, uchar col, const char *fmt, ...)|
+
+Writes the specified format string to the appropriate position on the LCD.
+\end{itemize}
 
 \section{User Interface}
 \label{sec:ui}
