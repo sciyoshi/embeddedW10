@@ -1,16 +1,17 @@
 \chapter{Software}
 
 \section{Overview}
-
+\label{sec:software-overview}
 The software component of the amplifier system will be running on top of an embedded real-time operating system (such as FreeRTOS). This operating system will provide the task management and scheduling required by the rest of the application. The main software components are shown in DIAGRAM REFERENCE; a description of each can be found in the following sections. Along with each component, a list of publicly-available functions for that component is listed. This helps better define the software interface requirements that will be used by the other modules in the system.
 
 DIAGRAM HERE
 
 \section{Input Drivers (Buttons and Scroll Wheel)}
-
-tasks
+\label{sec:io-driver}
+The functionality of the wheel and buttons are described in \autoref{sec:rotary} and \autoref{sec:buttons}. The high-level button and scroll wheel functions will be actuated through RTOS events which will allow the functions to be reassigned based on the state of the interface. There will be one function assigned for each of the buttons as well as one for each the \emph{Up} and \emph{Down} motions of the scroll wheel.
 
 \section{Digital Amplifier Driver}
+\label{sec:amp-driver}
 The CS4525 uses I\superscript{2}C and a series of single-byte configuration registers for all of its communications. The \emph{Reset} line is used to control power to the amplifier and is only used in initialization and in the case of error conditions. The core functions of this driver therefore are only those for single-byte reads and writes, as well as interrupt handling. Ur
 
 \subsection*{Functions}
@@ -29,8 +30,8 @@ Reads a byte in the amplifier registers.
 \end{itemize}
 
 \section{EEPROM Driver}
-
-The EEPROM is very simple in function, using a buffer to allow writing of up to 128 bytes at a time. The microprocessor communicates with the EEPROM using an I\superscript{2}C interface.
+\label{sec:eeprom-driver}
+The EEPROM is very simple in function, using a buffer to allow writing of up to 128 bytes at a time. The microprocessor communicates with the EEPROM using an I\superscript{2}C interface. This functionality is further described in \autoref{sec:eeprom}
 
 \subsection*{Functions}
 \begin{itemize}
@@ -56,7 +57,7 @@ Reads an arbitrary amount of data from the EEPROM and returns the count.
 \end{itemize}
 
 \section{LCD Driver}
-
+\label{sec:lcd-driver}
 The LCD driver is controlled using a list of functions that write to the LCD board in different ways. There is a function that writes a new line, a function that writes to a specified column and row, there is a function that writes a single character, a function that can write a single byte, and a function that can clear the screen so that more data can be written to it. The purpose of having all of these different ways to manipulate the LCD screen is two-fold. One, the various functions for writing to the LCD allowed for greater control over the way the user interface is designed. The functionality provided by the LCD interface allows us to implement features like writing non-ASCII characters to the screen (necessary to provide the ability to show a visualization when no music is playing). Second, we can use many of these functions during testing to ensure that the LCD board, and the modules connected to it functioned properly. Additionally the brightness and contrast can be controlled by using a PWM signal. There are additional software functions for controlling these variables by generating different pulse widths for each of these variables based on settings defined through the menu system. These functions together provide a driver interface for the rest of the software to use.
 
 Timing is an issue when writing to LCD; to avoid complexity, we have chosen to make these functions block and use timed poll loops instead of deferring execution to the scheduler. This could later be transparently changed if performance is an issue.
@@ -142,7 +143,7 @@ Runs the spectrogram task.
 
 The main task will be the initial one started by the real-time operating system, in charge of handling communication between the individual subsystems as well as displaying the menu.
 
-When entering the \emph{Main} (initial) state, the menu task will (depending on the user's configuration settings) launch the spectrogram task (\autoref{sec:spectogram}) and display additional status information on the LCD. Here it will wait for a button to be pressed or (if muted) a timeout to occur. Inside the menus it will wait for either a timeout (to return to the \emph{Main} state) or a button press (and perform the appropriate action as described in \autoref{sec:ui}).
+When entering the \emph{Main} (initial) state, the menu task will (depending on the user's configuration settings) launch the spectrogram task (\autoref{sec:spectrogram}) and display additional status information on the LCD. Here it will wait for a button to be pressed or (if muted) a timeout to occur. Inside the menus it will wait for either a timeout (to return to the \emph{Main} state) or a button press (and perform the appropriate action as described in \autoref{sec:ui}).
 
 \subsection*{Functions}
 \begin{itemize}
