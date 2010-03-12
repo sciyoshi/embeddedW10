@@ -17,16 +17,25 @@ functions
 tasks
 
 \section{Digital Amplifier Driver}
+The CS4525 uses I\superscript{2}C and a series of single-byte configuration registers for all of its communications. The \emph{Reset} line is used to control power to the amplifier and is only used in initialization and in the case of error conditions. The core functions of this driver therefore are only those for single-byte reads and writes, as well as interrupt handling. Ur
 
-i2c
-
-functions
+\subsection*{Functions}
+\begin{itemize}
+\item \texttt{void amp\_init(void)} \\ Initializes I\superscript{2}C channel 1 and loads default values
+\item \texttt{void amp\_write\_byte(char addr, char value)} \\ Set a byte in the amplifier registers
+\item \texttt{char amp\_read\_byte(char addr)} \\ Set a byte in the amplifier registers
+\end{itemize}
 
 \section{EEPROM Driver}
-
-description
-
-functions
+The EEPROM is very simple in function, using a buffer to allow writing of up to 128 bytes at a time.
+\subsection*{Functions}
+\begin{itemize}
+\item \texttt{void e2p\_init(void)} \\ Initializes I\superscript{2}C channel 2
+\item \texttt{void e2p\_write\_byte(char addr, char value)} \\ Write a single byte
+\item \texttt{char e2p\_read\_byte(char addr)} \\ Read a single byte
+\item \texttt{char e2p\_write(char addr, char len, char* buf)} \\ Write an arbitrary amount of data; return count
+\item \texttt{char e2p\_read(char addr, char len, char* buf)} \\ Read an arbitrary amount of data; return count
+\end{itemize}
 
 \section{LCD Driver}
 
